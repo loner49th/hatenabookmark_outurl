@@ -4,7 +4,8 @@ from requests_oauthlib import OAuth1
 import webbrowser
 import os
 from dotenv import load_dotenv
-from urllib.parse import parse_qs, urlencode
+from urllib.parse import parse_qs, urlencode, quote_plus
+import re
 
 load_dotenv()
 
@@ -54,12 +55,13 @@ def get_oauth_tokens():
         resource_owner_secret = token_data['oauth_token_secret'][0]
         
     except Exception as e:
-        print(f"Request Token取得エラー: {e}")
+        print("Request Token取得エラー: 認証に失敗しました")
         return None, None
     
     # Step 2: 認証URL生成とユーザー認証
     authorization_url = "https://www.hatena.ne.jp/oauth/authorize"
-    auth_url = f"{authorization_url}?oauth_token={resource_owner_key}"
+    # URLエスケープを適用
+    auth_url = f"{authorization_url}?oauth_token={quote_plus(resource_owner_key)}"
     
     print(f"認証URL: {auth_url}")
     
@@ -72,8 +74,13 @@ def get_oauth_tokens():
     # 認証コード（verifier）の入力を求める
     verifier = input("verifierコードを入力してください: ").strip()
     
+    # verifierの形式検証（英数字のみ、適切な長さ）
     if not verifier:
         print("verifierが入力されませんでした。")
+        return None, None
+    
+    if not re.match(r'^[a-zA-Z0-9+/=]+$', verifier) or len(verifier) < 10:
+        print("無効なverifierコードです。")
         return None, None
     
     # Step 3: Access Token取得

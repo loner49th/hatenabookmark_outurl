@@ -1,0 +1,15 @@
+# 認証情報
+.env
+
+# Python環境
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# 出力ファイル
+hatena_bookmarks_*.txt
+found_bookmarks_*.txt
+
+# ログファイル
+*.log
